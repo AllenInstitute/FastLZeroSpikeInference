@@ -1,26 +1,29 @@
 # FastLZeroSpikeInference: A package for estimating spike times from calcium imaging data using an L0 penalty 
 
+![https://travis-ci.com/jewellsean/FastLZeroSpikeInference](https://travis-ci.com/jewellsean/FastLZeroSpikeInference.png?branch=dev)
+
 This package implements an algorithm for deconvolving calcium imaging data
 for a single neuron in order to estimate the times at which the neuron
-spikes.
+spikes. See [https://jewellsean.github.io/fast-spike-deconvolution/](https://jewellsean.github.io/fast-spike-deconvolution/) for tutorials and additional information. 
 
 This algorithm solves the optimization problems
 
-AR(1) model
+### AR(1) model
 
-minimize_{c1,...,cT} 0.5 sum_{t=1}^T ( y_t - c_t )^2 + lambda sum_{t=2}^T 1_[c_t != max(gam c_{t-1}, EPS)]
+<img src="math_figures/un-constr.png" alt="alt text" width="600" height="80">
 
 for the global optimum, where y_t is the observed fluorescence at the tth timepoint.
 
-Constrained AR(1) model:
+### Constrained AR(1) model
 
-minimize_{c1,...,cT} 0.5 sum_{t=1}^T ( y_t - c_t )^2 + lambda sum_{t=2}^T 1_[c_t != max(gam c_{t-1}, EPS)]
- subject to c_t >= max(gam c_{t-1}, EPS), t = 2, ..., T
+<img src="math_figures/constr.png" alt="alt text" width="600" height="140">
 
-We introduce the constant EPS > 0, typically on the order of 10^-10, to avoid 
+for the global optimum, where y_t is the observed fluorescence at the tth timepoint.
+
+We introduce the constant EPS > 0, to avoid 
 arbitrarily small calcium concentrations that would result in numerical  
 instabilities. In practice, this means that the estimated calcium concentration 
-decays according to the AR(1) model for values greater than EPS and is equal to EPS thereafter.
+decays according to the AR(1) model for values greater than EPS and is equal to EPS thereafter. For small EPS, the difference between the old and new formulation is negligible (the objective function differ only when, under the old formulation, c_t < EPS, and at such timesteps the difference is bounded by 2y_t * EPS + 0.5 EPS^2; in our experiments, we choose EPS = 1e-4.)
 
 When estimating the spikes, it is not necessary to explicitly compute the 
 calcium concentration. Therefore, if only the spike times are required, the user
@@ -30,11 +33,7 @@ By default, the calcium concentration is not estimated.
 Given the set of estimated spikes produced from the estimate_spike, the calcium concentration
 can be estimated with the estimate_calcium function.
 
-For additional information see: 
- 
-1. Jewell, Hocking, Fearnhead, and Witten (2018) <arXiv:1802.07380> and 
- 
-2. Jewell and Witten (2017) <arXiv:1703.08644> 
+For additional information visit my [website](https://jewellsean.github.io/fast-spike-deconvolution/index.html).  
 
 R examples 
 ```r
@@ -98,8 +97,10 @@ An example using this code can be viewed [here](https://github.com/jewellsean/Fa
 
 References
 -----
-Jewell, Hocking, Fearnhead, and Witten (2018). [Fast Nonconvex Deconvolution of Calcium Imaging Data](https://arxiv.org/abs/1802.07380)
+Jewell, Hocking, Fearnhead, and Witten (2019). [Fast Nonconvex Deconvolution of Calcium Imaging Data](https://doi.org/10.1093/biostatistics/kxy083) Biostatistics. kxy083.
 
-Jewell and Witten (2017). [Exact Spike Train Inference Via L0 Optimization](https://arxiv.org/abs/1703.08644)
+Jewell and Witten (2018). [Exact Spike Train Inference Via L0 Optimization](https://projecteuclid.org/euclid.aoas/1542078052)
+Ann. Appl. Stat. 12 (2018), no. 4, 2457--2482. doi:10.1214/18-AOAS1162. 
+
 
 Hocking, T. D., Rigaill, G., Fearnhead, P., & Bourque, G. (2017). [A log-linear time algorithm for constrained changepoint detection](https://arxiv.org/abs/1703.03352)
